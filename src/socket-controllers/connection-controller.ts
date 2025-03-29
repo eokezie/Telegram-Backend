@@ -34,9 +34,6 @@ const onlineController = (io: Server, socket: CustomSocket) => {
     // @ts-ignore
     const { userModel, allRoomsUserIn } = result;
 
-    console.log(userModel, "USER MODEL");
-    console.log(allRoomsUserIn, "USER ROOMS");
-
     if (!Array.isArray(allRoomsUserIn)) {
       return socket.emit("error", { message: "Invalid room list" });
     }
