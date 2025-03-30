@@ -20,7 +20,7 @@ export interface UserType extends Document {
   };
   password: string;
   confirmPassword: string | undefined;
-  chatRooms: Types.ObjectId[];
+  chatRooms: string[];
   pinnedChatRooms: string[];
   unreadMessages: any[];
   undeliveredMessages: any[];

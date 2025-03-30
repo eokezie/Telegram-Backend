@@ -39,6 +39,7 @@ const addNewContact = catchAsync(
     if (!username) return next(new AppError(400, "Contact username is needed"));
 
     const user: UserType | null = await getUserService(req.cookies.userId);
+
     const newContact: UserType | null =
       await getUserByUsernameService(username);
 
@@ -57,16 +58,15 @@ const addNewContact = catchAsync(
       }
     }
 
-    let chatRoomId: Types.ObjectId | null | undefined =
-      await checkIfChatRoomExists(user, newContact);
+    let chatRoomId: string | undefined = await checkIfChatRoomExists(
+      user,
+      newContact
+    );
 
     if (!chatRoomId) {
       const chatRoomDetails = {
         roomType: "Private",
-        members: [
-          new Types.ObjectId(newContact._id),
-          new Types.ObjectId(user._id)
-        ],
+        members: [newContact._id, user._id],
         messageHistory: []
       };
 
@@ -77,8 +77,8 @@ const addNewContact = catchAsync(
 
       chatRoomId = newChatRoom._id as any;
 
-      user.chatRooms.push(new Types.ObjectId(newContact._id));
-      newContact.chatRooms.push(new Types.ObjectId(newContact._id));
+      user.chatRooms.push(chatRoomId as string);
+      newContact.chatRooms.push(chatRoomId as string);
     }
 
     const newContactData = {
@@ -129,16 +129,22 @@ const deleteContact = catchAsync(
     if (!aimedContact) return next(new AppError(400, "User does not exist"));
     if (!user) return next(new AppError(400, "Username does not exist"));
 
-    let chatRoomId: Types.ObjectId | null = null;
+    let chatRoomId: Types.ObjectId | string | null = null;
 
     const id = aimedContact._id.toString();
 
     user.contacts = user.contacts.filter((contact) => {
-      if (contact.contactDetails.toString() === id) {
+      if (contact.contactDetails.toString() === id.toString()) {
         chatRoomId = contact.chatRoomId;
+
+        if (!chatRoomId) {
+          throw new Error(
+            `Found matching contact but chatRoomId is missing for contact ${contact._id}`
+          );
+        }
+
         return false;
       }
-
       return true;
     });
 

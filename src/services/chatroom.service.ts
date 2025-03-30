@@ -6,14 +6,14 @@ import ChatRoom from "../models/chat-room.model";
 import User from "../models/user.model";
 
 const getUserService = async (userId: string) => {
-  const user: UserType | null = await User.findById(userId).lean();
+  const user: UserType | null = await User.findById(userId);
   return user;
 };
 
 const getUserByUsernameService = async (username: string) => {
   const user: UserType | null = await User.findOne({
     username: username
-  }).lean();
+  });
   return user;
 };
 
